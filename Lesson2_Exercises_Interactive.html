@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تمارين الدرس 2 — اللواحق الطبية</title>
+<style>
+  :root{--navy:#09172D;--card:#0F213C;--row:#13294C;--gold:#D4AF37;--white:#EEF3FA;--grey:#9AA6BA;--blue:#2D7DE6;--orange:#F09632;--green:#36BE78;--purple:#9F77DD;--greyc:#9AA0AF;--red:#E5544B;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;background:var(--navy);color:var(--white);font-family:'Segoe UI',Tahoma,'Helvetica Neue',Arial,sans-serif;min-height:100vh;display:flex;justify-content:center;padding:16px;}
+  .app{width:100%;max-width:640px;}
+  header{text-align:center;padding:8px 0 16px;border-bottom:3px solid var(--gold);margin-bottom:18px;}
+  header h1{margin:0;font-size:22px;} header p{margin:6px 0 0;color:var(--gold);font-size:14px;font-weight:bold;}
+  .bar{height:8px;background:var(--row);border-radius:6px;overflow:hidden;margin:14px 0 6px;}
+  .bar>i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s;}
+  .meta{display:flex;justify-content:space-between;font-size:13px;color:var(--grey);margin-bottom:14px;}
+  .card{background:var(--card);border-radius:16px;padding:20px 18px;}
+  .tag{display:inline-block;font-size:12px;font-weight:bold;color:#fff;border-radius:20px;padding:3px 12px;margin-bottom:12px;}
+  .q{font-size:20px;font-weight:bold;line-height:1.6;margin:0 0 18px;}
+  .opt{display:block;width:100%;text-align:right;background:var(--row);color:var(--white);border:2px solid transparent;border-radius:12px;padding:14px 16px;margin-bottom:10px;font-size:17px;font-family:inherit;cursor:pointer;transition:.15s;}
+  .opt:hover{border-color:var(--gold);}
+  .opt.correct{background:rgba(54,190,120,.22);border-color:var(--green);}
+  .opt.wrong{background:rgba(229,84,75,.22);border-color:var(--red);}
+  .fb{margin-top:6px;padding:14px 16px;border-radius:12px;font-size:15px;line-height:1.7;display:none;}
+  .fb.ok{background:rgba(54,190,120,.15);border:1px solid var(--green);}
+  .fb.no{background:rgba(229,84,75,.15);border:1px solid var(--red);}
+  .fb b{color:var(--gold);}
+  .next{display:none;width:100%;margin-top:16px;background:var(--gold);color:var(--navy);border:none;border-radius:12px;padding:15px;font-size:18px;font-weight:bold;font-family:inherit;cursor:pointer;}
+  .result{text-align:center;padding:30px 18px;}
+  .result .score{font-size:54px;font-weight:bold;color:var(--gold);}
+  .result .msg{font-size:18px;margin:10px 0 24px;line-height:1.6;}
+  .retry{background:var(--gold);color:var(--navy);border:none;border-radius:12px;padding:14px 28px;font-size:17px;font-weight:bold;font-family:inherit;cursor:pointer;}
+  footer{text-align:center;color:var(--grey);font-size:12px;margin-top:18px;}
+</style>
+</head>
+<body>
+<div class="app">
+  <header><h1>تمارين الدرس 2</h1><p>اللواحق · الجذور · المصطلحات الكاملة</p></header>
+  <div id="quiz">
+    <div class="bar"><i id="prog"></i></div>
+    <div class="meta"><span id="counter"></span><span id="live">النتيجة: 0</span></div>
+    <div class="card">
+      <span id="tag" class="tag"></span>
+      <p id="question" class="q"></p>
+      <div id="options"></div>
+      <div id="feedback" class="fb"></div>
+      <button id="nextBtn" class="next">التالي ←</button>
+    </div>
+  </div>
+  <div id="end" class="card result" style="display:none;">
+    <div class="score"><span id="finalScore"></span></div>
+    <div class="msg" id="finalMsg"></div>
+    <button class="retry" onclick="start()">أعد المحاولة 🔄</button>
+  </div>
+  <footer>دورة ترجمة المصطلحات الطبية — #الدرس_2</footer>
+</div>
+<script>
+const C={root:'var(--blue)',latin:'var(--blue)',prefix:'var(--orange)',suffix:'var(--green)',vowel:'var(--greyc)',term:'var(--gold)'};
+const LABEL={root:'جذر',latin:'جذر لاتيني',prefix:'بادئة',suffix:'لاحقة',vowel:'حرف ربط',term:'مصطلح كامل'};
+const TAGTX={term:'#09172D'};
+const QUESTIONS=[{"t": "suffix", "q": "ماذا تعني اللاحقة «‎-itis‎»؟", "o": ["التهاب", "استئصال جراحي", "ألم", "تنظير"], "a": 0, "e": "‎-itis‎ = التهاب، مثل Gastritis (التهاب المعدة)."}, {"t": "suffix", "q": "ماذا تعني اللاحقة «‎-ectomy‎»؟", "o": ["استئصال جراحي", "التهاب", "ترميم", "تنظير"], "a": 0, "e": "‎-ectomy‎ = الاستئصال الجراحي، مثل Mastectomy (استئصال الثدي)."}, {"t": "suffix", "q": "ماذا تعني اللاحقة «‎-oscopy‎»؟", "o": ["الفحص بالمنظار (تنظير)", "تخطيط", "استئصال", "ألم"], "a": 0, "e": "‎-oscopy‎ = الفحص بالمنظار، مثل Colonoscopy (تنظير القولون)."}, {"t": "suffix", "q": "ماذا تعني اللاحقة «‎-plasty‎»؟", "o": ["الترميم / الجراحة التجميلية", "الاستئصال", "التنظير", "الألم"], "a": 0, "e": "‎-plasty‎ = الترميم الجراحي، مثل Rhinoplasty (تجميل الأنف)."}, {"t": "suffix", "q": "ماذا تعني اللاحقة «‎-algia‎»؟", "o": ["الألم", "الالتهاب", "الاعتلال", "التنظير"], "a": 0, "e": "‎-algia‎ = الألم، مثل Neuralgia (ألم عصبي)."}, {"t": "suffix", "q": "ماذا تعني اللاحقة «‎-ology‎»؟", "o": ["العلم / الدراسة (تخصص طبي)", "الألم", "التنظير", "الاستئصال"], "a": 0, "e": "‎-ology‎ = علم/دراسة، مثل Cardiology (طب القلب)."}, {"t": "suffix", "q": "ماذا تعني اللاحقة «‎-logist‎»؟", "o": ["الأخصائي / الطبيب المختص", "المرض", "التنظير", "الألم"], "a": 0, "e": "‎-logist‎ = المختص، مثل Oncologist (طبيب الأورام)."}, {"t": "root", "q": "ماذا يعني الجذر «‎gastr/o‎»؟", "o": ["المعدة", "القولون", "الكبد", "الكلية"], "a": 0, "e": "gastr/o = المعدة."}, {"t": "root", "q": "ماذا يعني الجذر «‎arthr/o‎»؟", "o": ["المفصل", "العظم", "العضلة", "العصب"], "a": 0, "e": "arthr/o = المفصل."}, {"t": "root", "q": "ماذا يعني الجذر «‎neur/o‎»؟", "o": ["العصب / الأعصاب", "العضلة", "المفصل", "الدماغ"], "a": 0, "e": "neur/o = العصب."}, {"t": "root", "q": "ماذا يعني الجذر «‎nephr/o‎»؟", "o": ["الكلية", "الكبد", "المثانة", "المعدة"], "a": 0, "e": "nephr/o = الكلية (يوناني)؛ اللاتيني ren/o."}, {"t": "root", "q": "ماذا يعني الجذر «‎my/o‎»؟", "o": ["العضلة", "العظم", "المفصل", "العصب"], "a": 0, "e": "my/o = العضلة."}, {"t": "root", "q": "ماذا يعني الجذر «‎col/o‎» (colon)؟", "o": ["القولون", "المعدة", "الأمعاء الدقيقة", "الكبد"], "a": 0, "e": "col/o = القولون."}, {"t": "root", "q": "ماذا يعني الجذر «‎rhin/o‎»؟", "o": ["الأنف", "الأذن", "الفم", "الحنجرة"], "a": 0, "e": "rhin/o = الأنف."}, {"t": "root", "q": "ماذا يعني الجذر «‎cardi/o‎»؟", "o": ["القلب", "الرئة", "الكبد", "الكلية"], "a": 0, "e": "cardi/o = القلب."}, {"t": "root", "q": "ماذا يعني الجذر «‎bronch/o‎»؟", "o": ["القصبات الهوائية", "الرئة", "الحنجرة", "المريء"], "a": 0, "e": "bronch/o = القصبات الهوائية."}, {"t": "root", "q": "ماذا يعني الجذر «‎mast/o‎»؟", "o": ["الثدي", "الرحم", "الغدة الدرقية", "البطن"], "a": 0, "e": "mast/o = الثدي."}, {"t": "root", "q": "ماذا يعني الجذر «‎onc/o‎»؟", "o": ["الورم", "الدم", "الغدة", "الالتهاب"], "a": 0, "e": "onc/o = الورم."}, {"t": "root", "q": "ماذا يعني الجذر «‎cholecyst/o‎»؟", "o": ["المرارة (الحويصلة الصفراوية)", "الكبد", "الطحال", "البنكرياس"], "a": 0, "e": "cholecyst = المرارة."}, {"t": "root", "q": "ماذا يعني الجذر «‎append‎»؟", "o": ["الزائدة الدودية", "القولون", "المعدة", "المرارة"], "a": 0, "e": "append = الزائدة الدودية."}, {"t": "root", "q": "ماذا يعني الجذر «‎peritone/o‎»؟", "o": ["الصِّفاق (غشاء التجويف البطني)", "الحجاب الحاجز", "غشاء الجنب", "التأمور"], "a": 0, "e": "peritone = الصِّفاق."}, {"t": "term", "q": "ماذا يعني «‎Gastritis‎»؟", "o": ["التهاب المعدة", "استئصال المعدة", "ألم المعدة", "تنظير المعدة"], "a": 0, "e": "gastr + ‎-itis‎ = التهاب المعدة."}, {"t": "term", "q": "ماذا يعني «‎Appendectomy‎»؟", "o": ["استئصال الزائدة الدودية", "التهاب الزائدة", "تنظير الزائدة", "ألم الزائدة"], "a": 0, "e": "append + ‎-ectomy‎."}, {"t": "term", "q": "ماذا يعني «‎Bronchoscopy‎»؟", "o": ["تنظير القصبات الهوائية", "استئصال القصبات", "التهاب القصبات", "ترميم القصبات"], "a": 0, "e": "bronch/o + ‎-oscopy‎."}, {"t": "term", "q": "ماذا يعني «‎Rhinoplasty‎»؟", "o": ["جراحة تجميل الأنف", "استئصال الأنف", "تنظير الأنف", "التهاب الأنف"], "a": 0, "e": "rhin/o + ‎-plasty‎."}, {"t": "term", "q": "ماذا يعني «‎Fibromyalgia‎»؟", "o": ["ألم عضلي ليفي منتشر", "التهاب العضلات", "استئصال العضلة", "اعتلال العضلات"], "a": 0, "e": "fibr/o + my + ‎-algia‎."}, {"t": "term", "q": "ماذا يعني «‎Cardiology‎»؟", "o": ["طب القلب", "التهاب القلب", "استئصال القلب", "تخطيط القلب"], "a": 0, "e": "cardi/o + ‎-ology‎."}, {"t": "term", "q": "ماذا يعني «‎Neuralgia‎»؟", "o": ["ألم عصبي", "التهاب العصب", "استئصال العصب", "ورم عصبي"], "a": 0, "e": "neur + ‎-algia‎."}, {"t": "term", "q": "ماذا يعني «‎Arthroscopy‎»؟", "o": ["تنظير المفصل", "ترميم المفصل", "استئصال المفصل", "ألم المفصل"], "a": 0, "e": "arthr/o + ‎-oscopy‎."}, {"t": "term", "q": "ماذا يعني «‎Colonoscopy‎»؟", "o": ["تنظير القولون", "استئصال القولون", "التهاب القولون", "ألم القولون"], "a": 0, "e": "colon + ‎-oscopy‎."}, {"t": "term", "q": "ماذا يعني «‎Nephralgia‎»؟", "o": ["ألم الكلية", "التهاب الكلية", "استئصال الكلية", "تنظير الكلية"], "a": 0, "e": "nephr + ‎-algia‎."}, {"t": "term", "q": "ماذا يعني «‎Myoplasty‎»؟", "o": ["رأب / ترميم العضلة جراحياً", "استئصال العضلة", "التهاب العضلة", "ألم العضلة"], "a": 0, "e": "my/o + ‎-plasty‎."}, {"t": "term", "q": "ماذا يعني «‎Mastitis‎»؟", "o": ["التهاب الثدي", "استئصال الثدي", "ورم الثدي", "ألم الثدي"], "a": 0, "e": "mast + ‎-itis‎."}, {"t": "term", "q": "ماذا يعني «‎Mastectomy‎»؟", "o": ["استئصال الثدي", "التهاب الثدي", "تنظير الثدي", "ترميم الثدي"], "a": 0, "e": "mast + ‎-ectomy‎."}, {"t": "term", "q": "ماذا يعني «‎Cholecystectomy‎»؟", "o": ["استئصال المرارة", "التهاب المرارة", "تنظير المرارة", "ألم المرارة"], "a": 0, "e": "cholecyst + ‎-ectomy‎."}, {"t": "term", "q": "ماذا يعني «‎Oncology‎»؟", "o": ["طب الأورام (علم الأورام)", "استئصال الورم", "التهاب الورم", "تنظير الورم"], "a": 0, "e": "onc/o + ‎-ology‎."}, {"t": "term", "q": "ماذا يعني «‎Oncologist‎»؟", "o": ["طبيب / أخصائي الأورام", "علم الأورام", "استئصال الورم", "ورم خبيث"], "a": 0, "e": "onc/o + ‎-logist‎."}, {"t": "term", "q": "ماذا يعني «‎Neurologist‎»؟", "o": ["طبيب الأعصاب", "طب الأعصاب", "ألم عصبي", "استئصال العصب"], "a": 0, "e": "neur/o + ‎-logist‎."}, {"t": "term", "q": "ماذا يعني «‎Rhinitis‎»؟", "o": ["التهاب الأنف", "استئصال الأنف", "ألم الأنف", "تجميل الأنف"], "a": 0, "e": "rhin + ‎-itis‎."}, {"t": "term", "q": "ماذا يعني «‎Gastralgia‎»؟", "o": ["ألم المعدة", "التهاب المعدة", "استئصال المعدة", "تنظير المعدة"], "a": 0, "e": "gastr + ‎-algia‎."}, {"t": "term", "q": "ماذا يعني «‎Arthralgia‎»؟", "o": ["ألم المفصل", "التهاب المفصل", "استئصال المفصل", "تنظير المفصل"], "a": 0, "e": "arthr + ‎-algia‎."}, {"t": "vowel", "q": "متى نحذف حرف الوصل «‎-o-‎»؟", "o": ["إذا بدأت اللاحقة بحرف علة", "دائماً", "لا نحذفه أبداً", "بين جذرين فقط"], "a": 0, "e": "gastr + ‎-itis‎ = Gastritis (حُذف o لأن itis تبدأ بحرف علة)."}, {"t": "vowel", "q": "في كلمة «‎Gastroscopy‎» ما وظيفة حرف الـ«‎o‎»؟", "o": ["تسهيل النطق بين الجذر واللاحقة", "يدل على العضو", "يدل على الجمع", "يدل على المرض"], "a": 0, "e": "حرف الوصل o لتسهيل النطق فقط، بلا معنى."}];
+let order=[],idx=0,score=0;
+const $=id=>document.getElementById(id);
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function start(){
+  order=shuffle(QUESTIONS.map(q=>({...q,opts:shuffle(q.o.map((text,oi)=>({text,correct:oi===q.a})))})));
+  idx=0;score=0;$('end').style.display='none';$('quiz').style.display='block';$('live').textContent='النتيجة: 0';render();
+}
+function render(){
+  const q=order[idx];
+  $('counter').textContent=`السؤال ${idx+1} من ${order.length}`;
+  $('prog').style.width=`${(idx/order.length)*100}%`;
+  $('tag').textContent=LABEL[q.t];$('tag').style.background=C[q.t];$('tag').style.color=TAGTX[q.t]||'#fff';
+  $('question').textContent=q.q;
+  const box=$('options');box.innerHTML='';$('feedback').style.display='none';$('nextBtn').style.display='none';
+  q.opts.forEach(opt=>{const b=document.createElement('button');b.className='opt';b.textContent=opt.text;b.onclick=()=>answer(b,opt,q);box.appendChild(b);});
+}
+function answer(btn,opt,q){
+  document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
+  const fb=$('feedback');
+  if(opt.correct){btn.classList.add('correct');score++;$('live').textContent='النتيجة: '+score;fb.className='fb ok';fb.innerHTML='✅ <b>إجابة صحيحة!</b><br>'+q.e;}
+  else{btn.classList.add('wrong');document.querySelectorAll('.opt').forEach(b=>{const t=q.opts.find(o=>o.text===b.textContent);if(t&&t.correct)b.classList.add('correct');});fb.className='fb no';fb.innerHTML='❌ <b>إجابة خاطئة.</b><br>'+q.e;}
+  fb.style.display='block';$('nextBtn').style.display='block';
+}
+$('nextBtn').onclick=()=>{idx++;if(idx<order.length)render();else showResult();};
+function showResult(){
+  $('quiz').style.display='none';$('end').style.display='block';
+  const pct=Math.round(score/order.length*100);
+  $('finalScore').textContent=`${score} / ${order.length}`;
+  let m;if(pct===100)m='ممتاز! إتقان كامل 🌟';else if(pct>=75)m='أداء رائع — راجِع ما أخطأت فيه وكرّر.';else if(pct>=50)m='جيد، والتكرار سيرسّخ المصطلحات أكثر. حاول مرة أخرى.';else m='لا بأس! شاهد الدرس مجدداً ثم أعد التمرين — التكرار هو المفتاح.';
+  $('finalMsg').textContent=m;
+}
+start();
+</script>
+</body>
+</html>
