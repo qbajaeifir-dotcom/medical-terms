@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>تمارين مراجعة الدروس 1 و2 و3</title>
+<style>
+  :root{--navy:#09172D;--card:#0F213C;--row:#13294C;--gold:#D4AF37;--white:#EEF3FA;--grey:#9AA6BA;--blue:#2D7DE6;--orange:#F09632;--green:#36BE78;--purple:#9F77DD;--greyc:#9AA0AF;--red:#E5544B;}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+  body{margin:0;background:var(--navy);color:var(--white);font-family:'Segoe UI',Tahoma,'Helvetica Neue',Arial,sans-serif;min-height:100vh;display:flex;justify-content:center;padding:16px;}
+  .app{width:100%;max-width:640px;}
+  header{text-align:center;padding:8px 0 16px;border-bottom:3px solid var(--gold);margin-bottom:18px;}
+  header h1{margin:0;font-size:22px;} header p{margin:6px 0 0;color:var(--gold);font-size:14px;font-weight:bold;}
+  .bar{height:8px;background:var(--row);border-radius:6px;overflow:hidden;margin:14px 0 6px;}
+  .bar>i{display:block;height:100%;width:0;background:var(--gold);transition:width .3s;}
+  .meta{display:flex;justify-content:space-between;font-size:13px;color:var(--grey);margin-bottom:14px;}
+  .card{background:var(--card);border-radius:16px;padding:20px 18px;}
+  .tag{display:inline-block;font-size:12px;font-weight:bold;color:#fff;border-radius:20px;padding:3px 12px;margin-bottom:12px;}
+  .q{font-size:20px;font-weight:bold;line-height:1.6;margin:0 0 18px;}
+  .opt{display:block;width:100%;text-align:right;background:var(--row);color:var(--white);border:2px solid transparent;border-radius:12px;padding:14px 16px;margin-bottom:10px;font-size:17px;font-family:inherit;cursor:pointer;transition:.15s;}
+  .opt:hover{border-color:var(--gold);}
+  .opt.correct{background:rgba(54,190,120,.22);border-color:var(--green);}
+  .opt.wrong{background:rgba(229,84,75,.22);border-color:var(--red);}
+  .fb{margin-top:6px;padding:14px 16px;border-radius:12px;font-size:15px;line-height:1.7;display:none;}
+  .fb.ok{background:rgba(54,190,120,.15);border:1px solid var(--green);}
+  .fb.no{background:rgba(229,84,75,.15);border:1px solid var(--red);}
+  .fb b{color:var(--gold);}
+  .next{display:none;width:100%;margin-top:16px;background:var(--gold);color:var(--navy);border:none;border-radius:12px;padding:15px;font-size:18px;font-weight:bold;font-family:inherit;cursor:pointer;}
+  .result{text-align:center;padding:30px 18px;}
+  .result .score{font-size:54px;font-weight:bold;color:var(--gold);}
+  .result .msg{font-size:18px;margin:10px 0 24px;line-height:1.6;}
+  .retry{background:var(--gold);color:var(--navy);border:none;border-radius:12px;padding:14px 28px;font-size:17px;font-weight:bold;font-family:inherit;cursor:pointer;}
+  footer{text-align:center;color:var(--grey);font-size:12px;margin-top:18px;}
+</style>
+</head>
+<body>
+<div class="app">
+  <header><h1>مراجعة الدروس 1 · 2 · 3</h1><p>بادئات · جذور · لواحق · توسيع الحصيلة</p></header>
+  <div id="quiz">
+    <div class="bar"><i id="prog"></i></div>
+    <div class="meta"><span id="counter"></span><span id="live">النتيجة: 0</span></div>
+    <div class="card">
+      <span id="tag" class="tag"></span>
+      <p id="question" class="q"></p>
+      <div id="options"></div>
+      <div id="feedback" class="fb"></div>
+      <button id="nextBtn" class="next">التالي ←</button>
+    </div>
+  </div>
+  <div id="end" class="card result" style="display:none;">
+    <div class="score"><span id="finalScore"></span></div>
+    <div class="msg" id="finalMsg"></div>
+    <button class="retry" onclick="start()">أعد المحاولة 🔄</button>
+  </div>
+  <footer>دورة ترجمة المصطلحات الطبية — #مراجعة_شاملة</footer>
+</div>
+<script>
+const C={root:'var(--blue)',latin:'var(--blue)',prefix:'var(--orange)',suffix:'var(--green)',vowel:'var(--greyc)',term:'var(--gold)'};
+const LABEL={root:'جذر',latin:'جذر لاتيني',prefix:'بادئة',suffix:'لاحقة',vowel:'حرف ربط',term:'مصطلح كامل'};
+const TAGTX={term:'#09172D'};
+const QUESTIONS=[{"t": "prefix", "q": "ماذا تعني البادئة «‎poly-‎»؟", "o": ["متعدّد / كثير", "نصف", "حول", "بطيء"], "a": 0, "e": "‎poly-‎ = متعدّد، مثل Polyarthritis التهاب المفاصل المتعدّد."}, {"t": "prefix", "q": "ماذا تعني البادئة «‎peri-‎»؟", "o": ["حول / محيط", "متعدّد", "نصف", "سريع"], "a": 0, "e": "‎peri-‎ = حول، مثل Perinephritis التهاب ما حول الكلية."}, {"t": "prefix", "q": "ماذا تعني البادئة «‎hyper-‎»؟", "o": ["فرط / زيادة", "نقص", "نصف", "بطيء"], "a": 0, "e": "‎hyper-‎ = فرط، مثل Hyperkinesia فرط الحركة."}, {"t": "prefix", "q": "ماذا تعني البادئة «‎hypo-‎»؟", "o": ["نقص / قصور", "زيادة", "حول", "سريع"], "a": 0, "e": "‎hypo-‎ = نقص، مثل Hypokinesia نقص الحركة."}, {"t": "prefix", "q": "ماذا تعني البادئة «‎brady-‎»؟", "o": ["بطيء / بطء", "سريع", "متعدّد", "نصف"], "a": 0, "e": "‎brady-‎ = بطء، مثل Bradyarrhythmia."}, {"t": "prefix", "q": "ماذا تعني البادئة «‎tachy-‎»؟", "o": ["سريع / تسارع", "بطيء", "نقص", "حول"], "a": 0, "e": "‎tachy-‎ = سرعة، مثل Tachypnea."}, {"t": "suffix", "q": "ماذا تعني اللاحقة «‎-plegia‎»؟", "o": ["شلل / توقّف", "ألم", "التهاب", "تنظير"], "a": 0, "e": "‎-plegia‎ = شلل، مثل Ophthalmoplegia شلل عضلات العين."}, {"t": "suffix", "q": "ماذا تعني اللاحقة «‎-pnea‎»؟", "o": ["التنفّس", "الحركة", "نظم القلب", "الألم"], "a": 0, "e": "‎-pnea‎ = التنفّس."}, {"t": "suffix", "q": "ماذا تعني اللاحقة «‎-kinesia‎»؟", "o": ["الحركة", "التنفّس", "الإحساس", "النوم"], "a": 0, "e": "‎-kinesia‎ = الحركة."}, {"t": "suffix", "q": "ماذا تعني اللاحقة «‎-pathy‎»؟", "o": ["اعتلال / مرض", "ألم", "التهاب", "استئصال"], "a": 0, "e": "‎-pathy‎ = اعتلال، مثل Neuropathy."}, {"t": "suffix", "q": "ماذا تعني اللاحقة «‎-gram‎»؟", "o": ["تخطيط / تصوير (تسجيل)", "تنظير", "استئصال", "ألم"], "a": 0, "e": "‎-gram‎ = تسجيل/تصوير، مثل Electromyogram."}, {"t": "suffix", "q": "ماذا تعني اللاحقة «‎-logist‎»؟", "o": ["الأخصائي / الطبيب", "العلم", "الألم", "التنظير"], "a": 0, "e": "‎-logist‎ = المختص، مثل Cardiologist."}, {"t": "term", "q": "ماذا يعني «‎Myocardium‎»؟", "o": ["عضلة القلب", "التهاب عضلة القلب", "ألم القلب", "طبيب القلب"], "a": 0, "e": "my + cardi + ‑ium."}, {"t": "term", "q": "ماذا يعني «‎Myocarditis‎»؟", "o": ["التهاب عضلة القلب", "عضلة القلب", "استئصال القلب", "ألم القلب"], "a": 0, "e": "my + cardi + ‑itis."}, {"t": "term", "q": "ماذا يعني «‎Cardiologist‎»؟", "o": ["طبيب القلب", "ألم القلب", "التهاب القلب", "عضلة القلب"], "a": 0, "e": "cardi + ‑logist."}, {"t": "term", "q": "ماذا يعني «‎Cardialgia‎»؟", "o": ["ألم القلب", "طبيب القلب", "التهاب القلب", "عضلة القلب"], "a": 0, "e": "cardi + ‑algia."}, {"t": "term", "q": "ماذا يعني «‎Cardioplegia‎»؟", "o": ["إيقاف القلب المتعمَّد أثناء الجراحة", "السكتة القلبية المفاجئة", "النوبة القلبية", "التهاب القلب"], "a": 0, "e": "cardi + ‑plegia."}, {"t": "term", "q": "ماذا يعني «‎Nephrologist‎»؟", "o": ["طبيب الكلى", "التهاب الكلية", "استئصال الكلية", "ألم الكلية"], "a": 0, "e": "nephr + ‑logist."}, {"t": "term", "q": "ماذا يعني «‎Perinephritis‎»؟", "o": ["التهاب ما حول الكلية", "التهاب الكلية نفسها", "استئصال الكلية", "ألم الكلية"], "a": 0, "e": "peri + nephr + ‑itis."}, {"t": "term", "q": "ماذا يعني «‎Renal‎»؟", "o": ["كُلوي / متعلّق بالكلية", "كبدي", "قلبي", "رئوي"], "a": 0, "e": "ren + ‑al."}, {"t": "term", "q": "ماذا يعني «‎Polymyositis‎»؟", "o": ["التهاب العضلات المتعدّد", "ألم العضلات", "استئصال العضلة", "اعتلال العضلات"], "a": 0, "e": "poly + my + ‑itis."}, {"t": "term", "q": "ماذا يعني «‎Electromyogram‎»؟", "o": ["تخطيط كهربية العضل (EMG)", "تخطيط كهربية القلب", "تصوير العضلة بالأشعة", "تنظير العضلة"], "a": 0, "e": "electr + my + ‑gram."}, {"t": "term", "q": "ماذا يعني «‎Neuritis‎»؟", "o": ["التهاب العصب", "استئصال العصب", "ألم العصب", "اعتلال العصب"], "a": 0, "e": "neur + ‑itis."}, {"t": "term", "q": "ماذا يعني «‎Neurectomy‎»؟", "o": ["استئصال العصب", "التهاب العصب", "ألم العصب", "ترميم العصب"], "a": 0, "e": "neur + ‑ectomy."}, {"t": "term", "q": "ماذا يعني «‎Neuropathy‎»؟", "o": ["اعتلال عصبي", "التهاب العصب", "ألم عصبي", "استئصال العصب"], "a": 0, "e": "neur + ‑pathy."}, {"t": "term", "q": "ماذا يعني «‎Polyneuritis‎»؟", "o": ["التهاب الأعصاب المتعدّد", "التهاب عصب واحد", "اعتلال الأعصاب", "ألم الأعصاب"], "a": 0, "e": "poly + neur + ‑itis."}, {"t": "term", "q": "ماذا يعني «‎Polyarthritis‎»؟", "o": ["التهاب المفاصل المتعدّد", "التهاب مفصل واحد", "ألم المفاصل", "استئصال المفصل"], "a": 0, "e": "poly + arthr + ‑itis."}, {"t": "term", "q": "ماذا يعني «‎Periarthritis‎»؟", "o": ["التهاب ما حول المفصل", "التهاب داخل المفصل", "استئصال المفصل", "ألم المفصل"], "a": 0, "e": "peri + arthr + ‑itis."}, {"t": "term", "q": "ماذا يعني «‎Gastroscopy‎»؟", "o": ["تنظير المعدة", "استئصال المعدة", "التهاب المعدة", "تصوير المعدة"], "a": 0, "e": "gastr + ‑oscopy."}, {"t": "term", "q": "ماذا يعني «‎Enteroscopy‎»؟", "o": ["تنظير الأمعاء", "تنظير المعدة", "التهاب الأمعاء", "استئصال الأمعاء"], "a": 0, "e": "enter + ‑oscopy."}, {"t": "term", "q": "ماذا يعني «‎Cholecystitis‎»؟", "o": ["التهاب المرارة", "استئصال المرارة", "تصوير المرارة", "ألم المرارة"], "a": 0, "e": "cholecyst + ‑itis."}, {"t": "term", "q": "ماذا يعني «‎Cholecystogram‎»؟", "o": ["تصوير المرارة", "استئصال المرارة", "التهاب المرارة", "تنظير المرارة"], "a": 0, "e": "cholecyst + ‑gram."}, {"t": "term", "q": "ماذا يعني «‎Bronchitis‎»؟", "o": ["التهاب القصبات", "تصوير القصبات", "تنظير القصبات", "استئصال القصبات"], "a": 0, "e": "bronch + ‑itis."}, {"t": "term", "q": "ماذا يعني «‎Bronchogram‎»؟", "o": ["تصوير القصبات", "التهاب القصبات", "تنظير القصبات", "استئصال القصبات"], "a": 0, "e": "bronch + ‑gram."}, {"t": "term", "q": "ماذا يعني «‎Rhinologist‎»؟", "o": ["طبيب الأنف", "تنظير الأنف", "التهاب الأنف", "تجميل الأنف"], "a": 0, "e": "rhin + ‑logist."}, {"t": "term", "q": "ماذا يعني «‎Rhinoscopy‎»؟", "o": ["تنظير الأنف", "طبيب الأنف", "التهاب الأنف", "تجميل الأنف"], "a": 0, "e": "rhin + ‑oscopy."}, {"t": "term", "q": "ماذا يعني «‎Ophthalmologist‎»؟", "o": ["طبيب العيون", "فحص قاع العين", "شلل عضلات العين", "التهاب العين"], "a": 0, "e": "ophthalm + ‑logist."}, {"t": "term", "q": "ماذا يعني «‎Ophthalmoscopy‎»؟", "o": ["فحص قاع العين", "طبيب العيون", "شلل عضلات العين", "ألم العين"], "a": 0, "e": "ophthalm + ‑oscopy."}, {"t": "term", "q": "ماذا يعني «‎Ophthalmoplegia‎»؟", "o": ["شلل عضلات العين", "فحص قاع العين", "التهاب العين", "طبيب العيون"], "a": 0, "e": "ophthalm + ‑plegia."}, {"t": "term", "q": "ماذا يعني «‎Hyperkinesia‎»؟", "o": ["فرط الحركة", "نقص الحركة", "فقدان الحركة", "ألم الحركة"], "a": 0, "e": "hyper + ‑kinesia."}, {"t": "term", "q": "ماذا يعني «‎Hypokinesia‎»؟", "o": ["نقص الحركة", "فرط الحركة", "فقدان الإحساس", "ألم العضلات"], "a": 0, "e": "hypo + ‑kinesia."}, {"t": "term", "q": "ماذا يعني «‎Bradyarrhythmia‎»؟", "o": ["اضطراب نظم القلب البطيء", "تسارع نظم القلب", "توقّف القلب", "التهاب القلب"], "a": 0, "e": "brady + ‑arrhythmia."}, {"t": "term", "q": "ماذا يعني «‎Tachypnea‎»؟", "o": ["سرعة التنفّس (زيادة المعدّل)", "بطء التنفّس", "زيادة عُمق التنفّس", "نقص عُمق التنفّس"], "a": 0, "e": "tachy + ‑pnea = سرعة."}, {"t": "term", "q": "ماذا يعني «‎Bradypnea‎»؟", "o": ["بطء التنفّس", "سرعة التنفّس", "زيادة عُمق التنفّس", "نقص عُمق التنفّس"], "a": 0, "e": "brady + ‑pnea = بطء."}, {"t": "term", "q": "ماذا يعني «‎Hyperpnea‎»؟", "o": ["زيادة عُمق التنفّس", "سرعة التنفّس", "نقص عُمق التنفّس", "بطء التنفّس"], "a": 0, "e": "hyper + ‑pnea = عُمق."}, {"t": "term", "q": "ماذا يعني «‎Hypopnea‎»؟", "o": ["نقص عُمق التنفّس (تنفّس ضحل)", "زيادة عُمق التنفّس", "سرعة التنفّس", "بطء التنفّس"], "a": 0, "e": "hypo + ‑pnea = عُمق."}, {"t": "term", "q": "أيُّ مصطلحٍ يصف زيادة عُمق التنفّس وليس سرعته؟", "o": ["‎Hyperpnea‎", "‎Tachypnea‎", "‎Bradypnea‎", "‎Hypopnea‎"], "a": 0, "e": "hyper+pnea = العُمق، أمّا tachy فتدل على السرعة."}, {"t": "term", "q": "أيُّ هذه يعني انسداد شريانٍ يغذّي عضلة القلب (مشكلة سباكة)؟", "o": ["‎Heart Attack‎ (النوبة القلبية)", "‎Cardiac Arrest‎", "‎Cardioplegia‎", "‎Bradycardia‎"], "a": 0, "e": "النوبة القلبية = احتشاء بسبب انسداد شريان."}, {"t": "term", "q": "أيُّ هذه هو توقّف القلب المفاجئ بسبب خللٍ كهربائي؟", "o": ["‎Cardiac Arrest‎ (السكتة القلبية)", "‎Heart Attack‎", "‎Cardioplegia‎", "‎Myocarditis‎"], "a": 0, "e": "السكتة القلبية = توقّف مفاجئ، مشكلة كهربائية."}];
+let order=[],idx=0,score=0;
+const $=id=>document.getElementById(id);
+function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function start(){
+  order=shuffle(QUESTIONS.map(q=>({...q,opts:shuffle(q.o.map((text,oi)=>({text,correct:oi===q.a})))})));
+  idx=0;score=0;$('end').style.display='none';$('quiz').style.display='block';$('live').textContent='النتيجة: 0';render();
+}
+function render(){
+  const q=order[idx];
+  $('counter').textContent=`السؤال ${idx+1} من ${order.length}`;
+  $('prog').style.width=`${(idx/order.length)*100}%`;
+  $('tag').textContent=LABEL[q.t];$('tag').style.background=C[q.t];$('tag').style.color=TAGTX[q.t]||'#fff';
+  $('question').textContent=q.q;
+  const box=$('options');box.innerHTML='';$('feedback').style.display='none';$('nextBtn').style.display='none';
+  q.opts.forEach(opt=>{const b=document.createElement('button');b.className='opt';b.textContent=opt.text;b.onclick=()=>answer(b,opt,q);box.appendChild(b);});
+}
+function answer(btn,opt,q){
+  document.querySelectorAll('.opt').forEach(b=>b.disabled=true);
+  const fb=$('feedback');
+  if(opt.correct){btn.classList.add('correct');score++;$('live').textContent='النتيجة: '+score;fb.className='fb ok';fb.innerHTML='✅ <b>إجابة صحيحة!</b><br>'+q.e;}
+  else{btn.classList.add('wrong');document.querySelectorAll('.opt').forEach(b=>{const t=q.opts.find(o=>o.text===b.textContent);if(t&&t.correct)b.classList.add('correct');});fb.className='fb no';fb.innerHTML='❌ <b>إجابة خاطئة.</b><br>'+q.e;}
+  fb.style.display='block';$('nextBtn').style.display='block';
+}
+$('nextBtn').onclick=()=>{idx++;if(idx<order.length)render();else showResult();};
+function showResult(){
+  $('quiz').style.display='none';$('end').style.display='block';
+  const pct=Math.round(score/order.length*100);
+  $('finalScore').textContent=`${score} / ${order.length}`;
+  let m;if(pct===100)m='ممتاز! إتقان كامل 🌟';else if(pct>=75)m='أداء رائع — راجِع ما أخطأت فيه وكرّر.';else if(pct>=50)m='جيد، والتكرار سيرسّخ المصطلحات أكثر. حاول مرة أخرى.';else m='لا بأس! شاهد الدرس مجدداً ثم أعد التمرين — التكرار هو المفتاح.';
+  $('finalMsg').textContent=m;
+}
+start();
+</script>
+</body>
+</html>
